@@ -1,13 +1,12 @@
 module PlayGame where
 
+import Cards
 import Control.Applicative
 import Data.List
 import Data.Maybe
 import Data.Monoid
---import System.Random
---import System.RandomShuffle
-
-import Cards
+import System.Random
+import System.Random.Shuffle
 
 
 type Deck      = [Card]
@@ -63,17 +62,29 @@ playRound (GameState board deck sets) = (drawCards . removeSet . findSet) board
                 updatedSets  = sets ++ [(c1, c2, c3)]
 
 
+shouldQuit :: GameState -> Bool
+shouldQuit (GameState board deck _) = isNothing (findSet board) && deck == mempty
+
+
 playRounds :: GameState -> GameState
 playRounds gameState
   | shouldQuit gameState = gameState
   | otherwise            = (playRounds . playRound) gameState
-    where shouldQuit (GameState board deck _) = (isNothing . findSet) board && deck == mempty
+
+
+shuffleCards :: Deck -> StdGen -> Deck
+shuffleCards deck generator = shuffle' deck (length deck) generator
 
 
 play :: IO ()
 play = do
-  let initialState              = initializeBoard allCards
-      GameState _ _ finalSets  = playRounds initialState
-  print finalSets
+  generator <- getStdGen
+
+  let shuffledDeck              = shuffleCards allCards generator
+      initialState              = initializeBoard shuffledDeck
+      (GameState _ _ finalSets) = playRounds initialState
+
+  mapM_ print finalSets
   print $ length finalSets
+
   return ()
