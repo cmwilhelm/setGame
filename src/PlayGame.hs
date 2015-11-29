@@ -15,9 +15,18 @@ type CardSet   = (Card, Card, Card)
 data GameState = GameState Board Deck [CardSet]
 
 
-initializeBoard :: Deck -> GameState
-initializeBoard deck = GameState board (deck \\ board) []
+shuffleCards :: Deck -> StdGen -> Deck
+shuffleCards deck generator = shuffle' deck (length deck) generator
+
+
+getShuffledDeck :: StdGen -> Deck
+getShuffledDeck generator = shuffleCards allCards generator
+
+
+initializeBoard :: StdGen -> GameState
+initializeBoard generator = GameState board (deck \\ board) []
   where board = take 12 deck
+        deck  = getShuffledDeck generator
 
 
 drawCards :: GameState -> GameState
@@ -70,11 +79,3 @@ playRounds :: GameState -> GameState
 playRounds gameState
   | shouldQuit gameState = gameState
   | otherwise            = (playRounds . playRound) gameState
-
-
-shuffleCards :: Deck -> StdGen -> Deck
-shuffleCards deck generator = shuffle' deck (length deck) generator
-
-
-getShuffledDeck :: StdGen -> Deck
-getShuffledDeck generator = shuffleCards allCards generator
