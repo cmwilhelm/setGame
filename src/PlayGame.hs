@@ -76,15 +76,5 @@ shuffleCards :: Deck -> StdGen -> Deck
 shuffleCards deck generator = shuffle' deck (length deck) generator
 
 
-play :: IO ()
-play = do
-  generator <- getStdGen
-
-  let shuffledDeck              = shuffleCards allCards generator
-      initialState              = initializeBoard shuffledDeck
-      (GameState _ _ finalSets) = playRounds initialState
-
-  mapM_ print finalSets
-  print $ length finalSets
-
-  return ()
+getShuffledDeck :: StdGen -> Deck
+getShuffledDeck generator = shuffleCards allCards generator
