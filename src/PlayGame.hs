@@ -13,19 +13,19 @@ import Cards
 type Deck      = [Card]
 type Board     = [Card]
 type CardSet   = (Card, Card, Card)
-type GameState = (Board, Deck, [CardSet])
+data GameState = GameState Board Deck [CardSet]
 
 
 initializeBoard :: Deck -> GameState
-initializeBoard deck = (board, deck \\ board, [])
+initializeBoard deck = GameState board (deck \\ board) []
   where board = take 12 deck
 
 
 drawCards :: GameState -> GameState
-drawCards (board, [], cs)          = (board, [], cs)
-drawCards (board, [x], cs)         = (x:board, [], cs)
-drawCards (board, [x1,x2], cs)     = (x1:x2:board, [], cs)
-drawCards (board, x1:x2:x3:xs, cs) = (x1:x2:x3:board, xs, cs)
+drawCards (GameState board [] cs)            = GameState board [] cs
+drawCards (GameState board [x] cs)           = GameState (x:board) [] cs
+drawCards (GameState board [x1,x2] cs)       = GameState (x1:x2:board) [] cs
+drawCards (GameState board (x1:x2:x3:xs) cs) = GameState (x1:x2:x3:board) xs cs
 
 
 isSet :: (Card, Card, Card) -> Bool
@@ -56,24 +56,24 @@ findSet board | length board < 3 = Nothing
 
 
 playRound :: GameState -> GameState
-playRound (board, deck, sets) = (drawCards . removeSet . findSet) board
-  where removeSet Nothing             = (board, deck, sets)
-        removeSet (Just (c1, c2, c3)) = (updatedBoard, deck, updatedSets)
+playRound (GameState board deck sets) = (drawCards . removeSet . findSet) board
+  where removeSet Nothing             = GameState board deck sets
+        removeSet (Just (c1, c2, c3)) = GameState updatedBoard deck updatedSets
           where updatedBoard = board \\ [c1, c2, c3]
                 updatedSets  = sets ++ [(c1, c2, c3)]
 
 
 playRounds :: GameState -> GameState
-playRounds (board, deck, cardSets)
-  | shouldQuit = (board, deck, cardSets)
-  | otherwise  = (playRounds . playRound) (board, deck, cardSets)
-    where shouldQuit = (isNothing . findSet) board && deck == mempty
+playRounds gameState
+  | shouldQuit gameState = gameState
+  | otherwise            = (playRounds . playRound) gameState
+    where shouldQuit (GameState board deck _) = (isNothing . findSet) board && deck == mempty
 
 
 play :: IO ()
 play = do
-  let (board, deck, sets) = initializeBoard allCards
-      (_, _, finalSets)  = playRounds (board, deck, sets)
+  let initialState              = initializeBoard allCards
+      GameState _ _ finalSets  = playRounds initialState
   print finalSets
   print $ length finalSets
   return ()
