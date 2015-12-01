@@ -15,6 +15,38 @@ type CardSet   = (Card, Card, Card)
 data GameState = GameState Board Deck [CardSet]
 
 
+initializeGame :: StdGen -> GameState
+initializeGame generator = drawCards 12 (GameState board deck sets)
+  where board = []
+        deck  = getShuffledDeck generator
+        sets  = []
+
+
+drawCards :: Int -> GameState -> GameState
+drawCards n (GameState board deck sets) = GameState updatedBoard updatedDeck sets
+  where drawn        = take n deck
+        updatedBoard = drawn ++ board
+        updatedDeck  = deck \\ drawn
+
+
+playRound :: GameState -> GameState
+playRound (GameState board deck sets) = (drawCards 3 . removeSet . findSet) board
+  where removeSet Nothing             = GameState board deck sets
+        removeSet (Just (c1, c2, c3)) = GameState updatedBoard deck updatedSets
+          where updatedBoard = board \\ [c1, c2, c3]
+                updatedSets  = sets ++ [(c1, c2, c3)]
+
+
+playRounds :: GameState -> GameState
+playRounds gameState
+  | shouldQuit gameState = gameState
+  | otherwise            = (playRounds . playRound) gameState
+  where shouldQuit (GameState board deck _) = hasNoSets board && deckIsEmpty deck
+        hasNoSets board                     = isNothing $ findSet board
+        deckIsEmpty deck                    = deck == mempty
+
+
+
 shuffleCards :: Deck -> StdGen -> Deck
 shuffleCards deck generator = shuffle' deck (length deck) generator
 
@@ -23,17 +55,15 @@ getShuffledDeck :: StdGen -> Deck
 getShuffledDeck generator = shuffleCards allCards generator
 
 
-initializeGame :: StdGen -> GameState
-initializeGame generator = GameState board (deck \\ board) []
-  where board = take 12 deck
-        deck  = getShuffledDeck generator
-
-
-drawCards :: GameState -> GameState
-drawCards (GameState board [] cs)            = GameState board [] cs
-drawCards (GameState board [x] cs)           = GameState (x:board) [] cs
-drawCards (GameState board [x1,x2] cs)       = GameState (x1:x2:board) [] cs
-drawCards (GameState board (x1:x2:x3:xs) cs) = GameState (x1:x2:x3:board) xs cs
+findSet :: Board -> Maybe CardSet
+findSet board | length board < 3 = Nothing
+              | otherwise        = maybeFirst
+                                 . filter isSet
+                                 . filter (\(c1, c2, c3) -> allUnique [c1, c2, c3])
+                                 $ allCombinations
+  where allCombinations  = [(,,)] <*> board <*> board <*> board
+        maybeFirst []    = Nothing
+        maybeFirst (x:_) = Just x
 
 
 isSet :: (Card, Card, Card) -> Bool
@@ -54,32 +84,3 @@ allUnique xs = (== expectedLength)
 
 allDifferent :: (Eq a) => [a] -> Bool
 allDifferent = (== 1) . length . nub
-
-
-findSet :: Board -> Maybe CardSet
-findSet board | length board < 3 = Nothing
-              | otherwise        = maybeFirst
-                                 . filter isSet
-                                 . filter (\(c1, c2, c3) -> allUnique [c1, c2, c3])
-                                 $ allCombinations
-  where allCombinations  = [(,,)] <*> board <*> board <*> board
-        maybeFirst []    = Nothing
-        maybeFirst (x:_) = Just x
-
-
-playRound :: GameState -> GameState
-playRound (GameState board deck sets) = (drawCards . removeSet . findSet) board
-  where removeSet Nothing             = GameState board deck sets
-        removeSet (Just (c1, c2, c3)) = GameState updatedBoard deck updatedSets
-          where updatedBoard = board \\ [c1, c2, c3]
-                updatedSets  = sets ++ [(c1, c2, c3)]
-
-
-shouldQuit :: GameState -> Bool
-shouldQuit (GameState board deck _) = isNothing (findSet board) && deck == mempty
-
-
-playRounds :: GameState -> GameState
-playRounds gameState
-  | shouldQuit gameState = gameState
-  | otherwise            = (playRounds . playRound) gameState
