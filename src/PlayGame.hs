@@ -23,8 +23,8 @@ getShuffledDeck :: StdGen -> Deck
 getShuffledDeck generator = shuffleCards allCards generator
 
 
-initializeBoard :: StdGen -> GameState
-initializeBoard generator = GameState board (deck \\ board) []
+initializeGame :: StdGen -> GameState
+initializeGame generator = GameState board (deck \\ board) []
   where board = take 12 deck
         deck  = getShuffledDeck generator
 

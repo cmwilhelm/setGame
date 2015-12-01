@@ -8,10 +8,10 @@ main :: IO ()
 main = do
   generator <- getStdGen
 
-  let initialState              = initializeBoard generator
+  let initialState              = initializeGame generator
       (GameState _ _ finalSets) = playRounds initialState
 
   mapM_ print finalSets
-  print $ length finalSets
+  print $ "Found: " ++ (show . length) finalSets ++ " sets"
 
   return ()
