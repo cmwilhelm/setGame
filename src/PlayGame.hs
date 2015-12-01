@@ -37,26 +37,30 @@ drawCards (GameState board (x1:x2:x3:xs) cs) = GameState (x1:x2:x3:board) xs cs
 
 
 isSet :: (Card, Card, Card) -> Bool
-isSet cards = all (propertyPasses cards) cardAccessors
-  where propertyPasses (c1, c2, c3) accessor = flip elem [1,3]
-                                             . length
-                                             . nub
-                                             . fmap accessor
-                                             $ [c1, c2, c3]
+isSet cards = all (attrPasses cards) cardAccessors
+  where attrPasses (c1, c2, c3) accessor = (\attrs -> allUnique attrs
+                                                   || allDifferent attrs)
+                                         . fmap accessor
+                                         $ [c1, c2, c3]
 
 
-allUnique :: (Card, Card, Card) -> Bool
-allUnique (c1, c2, c3) = (== 3)
-                       . length
-                       . nub
-                       $ [c1, c2, c3]
+allUnique :: (Eq a) => [a] -> Bool
+allUnique xs = (== expectedLength)
+             . length
+             . nub
+             $ xs
+  where expectedLength = length xs
+
+
+allDifferent :: (Eq a) => [a] -> Bool
+allDifferent = (== 1) . length . nub
 
 
 findSet :: Board -> Maybe CardSet
 findSet board | length board < 3 = Nothing
               | otherwise        = maybeFirst
                                  . filter isSet
-                                 . filter allUnique
+                                 . filter (\(c1, c2, c3) -> allUnique [c1, c2, c3])
                                  $ allCombinations
   where allCombinations  = [(,,)] <*> board <*> board <*> board
         maybeFirst []    = Nothing
