@@ -69,7 +69,7 @@ findSet board | length board < 3 = Nothing
 isSet :: (Card, Card, Card) -> Bool
 isSet cards = all (attrPasses cards) cardAccessors
   where attrPasses (c1, c2, c3) accessor = (\attrs -> allUnique attrs
-                                                   || allDifferent attrs)
+                                                   || allSame attrs)
                                          . fmap accessor
                                          $ [c1, c2, c3]
 
@@ -82,5 +82,5 @@ allUnique xs = (== expectedLength)
   where expectedLength = length xs
 
 
-allDifferent :: (Eq a) => [a] -> Bool
-allDifferent = (== 1) . length . nub
+allSame :: (Eq a) => [a] -> Bool
+allSame = (== 1) . length . nub
