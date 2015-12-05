@@ -1,6 +1,6 @@
-module PlayGame where
+module SetGame.PlayGame where
 
-import Cards
+import SetGame.Cards
 import Control.Applicative
 import Data.List
 import Data.Maybe
