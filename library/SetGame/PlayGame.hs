@@ -25,7 +25,7 @@ initializeGame generator = drawCards 12 (GameState board deck sets)
 drawCards :: Int -> GameState -> GameState
 drawCards n (GameState board deck sets) = GameState updatedBoard updatedDeck sets
   where drawn        = take n deck
-        updatedBoard = drawn ++ board
+        updatedBoard = board ++ drawn
         updatedDeck  = deck \\ drawn
 
 
