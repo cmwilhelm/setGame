@@ -1,4 +1,4 @@
-module Attributes where
+module SetGame.Attributes where
 
 
 data Color = Blue

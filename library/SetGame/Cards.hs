@@ -1,6 +1,6 @@
-module Cards where
+module SetGame.Cards where
 
-import Attributes
+import SetGame.Attributes
 import Control.Applicative
 import Data.List
 
