@@ -1,4 +1,4 @@
-module SetGameTest (main) where
+module Main (main) where
 
 import SetGame.Attributes
 import SetGame.Cards
