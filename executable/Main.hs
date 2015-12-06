@@ -22,4 +22,7 @@ site =
 top :: Snap ()
 top = do
   results <- liftIO runGame
-  writeBS $ (CharB.pack . L.intercalate "\n" . fmap show) results
+  writeBS $ CharB.pack
+          . L.intercalate "\n"
+          . fmap show
+          $ results
