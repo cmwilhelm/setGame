@@ -1,28 +1,34 @@
-{-# LANGUAGE OverloadedStrings #-}
-{-# LANGUAGE FlexibleInstances #-}
-{-# LANGUAGE DeriveDataTypeable #-}
-{-# LANGUAGE TemplateHaskell    #-}
-{-# LANGUAGE TypeFamilies       #-}
+{-# LANGUAGE OverloadedStrings     #-}
+{-# LANGUAGE FlexibleInstances     #-}
+{-# LANGUAGE MultiParamTypeClasses #-}
+{-# LANGUAGE DeriveDataTypeable    #-}
+{-# LANGUAGE TemplateHaskell       #-}
+{-# LANGUAGE TypeFamilies          #-}
 module SetGameWeb.Data where
 
+import           Control.Lens (makeLenses, view)
 import           Control.Monad.Reader
 import           Control.Monad.State
-import           Data.Acid
 import qualified Data.Map as Map
 import           Data.SafeCopy
+import           Data.Time.Clock
 import           Data.Typeable
 import           SetGame.GameState
-
+import           Snap (Snaplet, snapletValue)
+import           Snap.Snaplet.AcidState
 
 -- data persistence
 
-type GameID = String
+type GameID = UTCTime
 data WebGameState = SinglePlayer GameState
-                  | MultiPlayer GameState
   deriving (Typeable)
 
-data GameStore = GameStore !(Map.Map GameID WebGameState)
+type GameStateMap = Map.Map GameID WebGameState
+
+data GameStore = GameStore GameStateMap
   deriving (Typeable)
+
+makeLenses ''WebGameState
 
 $(deriveSafeCopy 0 'base ''WebGameState)
 $(deriveSafeCopy 0 'base ''GameStore)
@@ -37,4 +43,18 @@ lookupGame key
     = do GameStore m <- ask
          return (Map.lookup key m)
 
-$(makeAcidic ''GameStore ['insertGame, 'lookupGame])
+countAllGames :: Query GameStore Int
+countAllGames = do
+  GameStore m <- ask
+  return (length . Map.toList $ m)
+
+$(makeAcidic ''GameStore ['insertGame, 'lookupGame, 'countAllGames])
+
+data App = App
+    { _acid :: Snaplet (Acid GameStore)
+    }
+
+makeLenses ''App
+
+instance HasAcid App GameStore where
+  getAcidStore = view (acid.snapletValue)

@@ -1,8 +1,8 @@
 module Main where
 
-import Snap.Http.Server
-import SetGameWeb (site)
+import           Snap (serveSnaplet, defaultConfig)
+import           SetGameWeb (app)
 
 
 main :: IO ()
-main = quickHttpServe site
+main = serveSnaplet defaultConfig app
