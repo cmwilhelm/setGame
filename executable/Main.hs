@@ -3,7 +3,8 @@ module Main where
 
 import Control.Applicative
 import Control.Monad.IO.Class
-import Data.ByteString.Char8
+import qualified Data.ByteString.Char8 as CharB
+import qualified Data.List as L
 import Snap.Core
 import Snap.Util.FileServe
 import Snap.Http.Server
@@ -21,4 +22,4 @@ site =
 top :: Snap ()
 top = do
   results <- liftIO runGame
-  writeBS $ pack results
+  writeBS $ (CharB.pack . L.intercalate "\n" . fmap show) results
