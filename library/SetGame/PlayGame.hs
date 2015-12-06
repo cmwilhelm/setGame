@@ -1,6 +1,5 @@
 module SetGame.PlayGame where
 
-import SetGame.Cards
 import Control.Applicative
 import Data.List
 import Data.Maybe
@@ -8,11 +7,8 @@ import Data.Monoid
 import System.Random
 import System.Random.Shuffle
 
-
-type Deck      = [Card]
-type Board     = [Card]
-type CardSet   = (Card, Card, Card)
-data GameState = GameState Board Deck [CardSet]
+import SetGame.Cards
+import SetGame.GameState
 
 
 drawCards :: Int -> GameState -> GameState

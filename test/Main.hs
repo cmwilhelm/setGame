@@ -2,6 +2,7 @@ module Main (main) where
 
 import SetGame.Attributes
 import SetGame.Cards
+import SetGame.GameState
 import SetGame.PlayGame
 import Test.Hspec
 

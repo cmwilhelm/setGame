@@ -1,5 +1,6 @@
 module SetGame where
 
+import SetGame.GameState
 import SetGame.PlayGame
 import System.Random
 

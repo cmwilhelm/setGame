@@ -1,4 +1,7 @@
+{-# LANGUAGE TemplateHaskell    #-}
 module SetGame.Attributes where
+
+import Data.SafeCopy
 
 
 data Color = Blue
@@ -17,8 +20,14 @@ data Shape = Oval
            | Rectangle
            | Squiggle deriving (Show, Eq)
 
-type AttributeSet a = [a]
 
+$(deriveSafeCopy 0 'base ''Color)
+$(deriveSafeCopy 0 'base ''Shade)
+$(deriveSafeCopy 0 'base ''Number)
+$(deriveSafeCopy 0 'base ''Shape)
+
+
+type AttributeSet a = [a]
 
 colors :: AttributeSet Color
 colors = [Blue, Green, Purple]

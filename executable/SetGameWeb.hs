@@ -10,7 +10,7 @@ import Snap.Core
 import Snap.Util.FileServe
 
 import SetGame (runGame, initializeGame)
-import SetGame.PlayGame (GameState(..))
+import SetGame.GameState
 import SetGameWeb.Data()
 
 
