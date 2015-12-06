@@ -11,4 +11,8 @@ runGame = do
   let initialState              = initializeGame generator
       (GameState _ _ finalSets) = playRounds initialState
 
+  let (_, newGenerator) = split generator
+
+  setStdGen newGenerator
+
   return finalSets
