@@ -4,15 +4,24 @@ import SetGame.PlayGame
 import System.Random
 
 
-runGame :: IO [CardSet]
-runGame = do
+initializeGame :: IO GameState
+initializeGame = do
   generator <- getStdGen
 
-  let initialState              = initializeGame generator
-      (GameState _ _ finalSets) = playRounds initialState
+  let shuffledDeck = getShuffledDeck generator
+      initialState = drawCards 12 (GameState [] shuffledDeck [])
 
   let (_, newGenerator) = split generator
 
   setStdGen newGenerator
+
+  return initialState
+
+
+runGame :: IO [CardSet]
+runGame = do
+  gameState <- initializeGame
+
+  let (GameState _ _ finalSets) = playRounds gameState
 
   return finalSets

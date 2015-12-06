@@ -15,13 +15,6 @@ type CardSet   = (Card, Card, Card)
 data GameState = GameState Board Deck [CardSet]
 
 
-initializeGame :: StdGen -> GameState
-initializeGame generator = drawCards 12 (GameState board deck sets)
-  where board = []
-        deck  = getShuffledDeck generator
-        sets  = []
-
-
 drawCards :: Int -> GameState -> GameState
 drawCards n (GameState board deck sets) = GameState updatedBoard updatedDeck sets
   where drawn        = take n deck
