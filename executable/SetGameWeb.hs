@@ -4,9 +4,10 @@ module SetGameWeb where
 import           Control.Monad.IO.Class
 import           Data.Aeson (encode)
 import qualified Data.ByteString.Char8 as CharB
+import           Data.Functor
 import qualified Data.List as L
 import qualified Data.Map as Map
-import           Data.Time.Clock
+import           Data.Time.Clock.POSIX
 import           Snap.Core
 import           Snap (SnapletInit, Handler, addRoutes,
                  nestSnaplet, makeSnaplet)
@@ -25,9 +26,10 @@ app = makeSnaplet "setGame" "A web implementaiton of the Set game" Nothing $ do
 
 
 routes :: [(CharB.ByteString, Handler App App ())]
-routes = [ ("/sp", singlePlayerHandler)
-         , ("/all", allGamesHandler)
-         , ("/full-game", fullGameHandler)
+routes = [ ("/sp/new",     method GET newSinglePlayerGameHandler)
+         , ("/sp/:gameId", method GET retrieveSinglePlayerGameHandler)
+         , ("/all",        method GET allGamesHandler)
+         , ("/full-game",  method GET fullGameHandler)
          ]
 
 
@@ -53,11 +55,22 @@ allGamesHandler = do
 
 -- Starts a new single player game and returns the game board
 
-singlePlayerHandler :: Handler App App ()
-singlePlayerHandler = do
+newSinglePlayerGameHandler :: Handler App App ()
+newSinglePlayerGameHandler = do
   (GameState board deck sets) <- liftIO initializeGame
-  now <- liftIO getCurrentTime
+  now <- liftIO $ (round . (* 1000)) <$> getPOSIXTime
   update $ InsertGame now (SinglePlayer (GameState board deck sets))
 
   modifyResponse $ setHeader "Content-Type" "application/json"
-  writeLBS . encode $ board
+  writeLBS . encode $ (now, board)
+
+
+-- Looks up an existing game by its id and returns the board
+
+retrieveSinglePlayerGameHandler :: Handler App App ()
+retrieveSinglePlayerGameHandler = do
+  Just gameIdParam <- getParam "gameId"
+  let (Just (gameId, _)) = CharB.readInteger gameIdParam
+  Just (SinglePlayer (GameState board _ _)) <- query $ LookupGame gameId
+  modifyResponse $ setHeader "Content-Type" "application/json"
+  writeLBS . encode $ (gameId, board)

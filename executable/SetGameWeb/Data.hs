@@ -11,7 +11,6 @@ import           Control.Monad.Reader
 import           Control.Monad.State
 import qualified Data.Map as Map
 import           Data.SafeCopy
-import           Data.Time.Clock
 import           Data.Typeable
 import           SetGame.GameState
 import           Snap (Snaplet, snapletValue)
@@ -19,7 +18,7 @@ import           Snap.Snaplet.AcidState
 
 -- data persistence
 
-type GameID = UTCTime
+type GameID = Integer
 data WebGameState = SinglePlayer GameState
   deriving (Typeable)
 
