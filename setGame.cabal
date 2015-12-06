@@ -30,7 +30,8 @@ library
         random-shuffle == 0.0.4,
         random,
         aeson,
-        safecopy
+        safecopy,
+        containers
     exposed-modules:
         SetGame
         SetGame.PlayGame
