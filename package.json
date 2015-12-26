@@ -1,0 +1,35 @@
+{
+  "name": "setGame",
+  "version": "0.0.0",
+  "description": "Set Game for the webs",
+  "main": "index.js",
+  "directories": {
+    "test": "test"
+  },
+  "scripts": {
+    "test": "test"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/cmwilhelm/setGame.git"
+  },
+  "keywords": [
+    "set",
+    "game"
+  ],
+  "author": "Chris Wilhelm",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/cmwilhelm/setGame/issues"
+  },
+  "homepage": "https://github.com/cmwilhelm/setGame",
+  "dependencies": {
+    "angular2": "2.0.0-beta.0",
+    "systemjs": "0.19.6",
+    "es6-promise": "^3.0.2",
+    "es6-shim": "^0.33.3",
+    "reflect-metadata": "0.1.2",
+    "rxjs": "5.0.0-beta.0",
+    "zone.js": "0.5.10"
+  }
+}

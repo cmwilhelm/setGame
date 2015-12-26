@@ -1,0 +1,34 @@
+<html>
+
+  <head>
+    <title>Set Game!</title>
+
+    <!-- 1. Load libraries -->
+    <script src="vendor/angular2/bundles/angular2-polyfills.js"></script>
+    <script src="vendor/systemjs/dist/system.src.js"></script>
+    <script src="vendor/rxjs/bundles/Rx.js"></script>
+    <script src="vendor/angular2/bundles/angular2.dev.js"></script>
+    <script src="vendor/angular2/bundles/http.dev.js"></script>
+
+    <!-- 2. Configure SystemJS -->
+    <script>
+      System.config({
+        packages: {
+          spa: {
+            format: 'register',
+            defaultExtension: 'js'
+	  }
+        }
+      });
+      System.import('spa/application')
+            .then(null, console.error.bind(console));
+    </script>
+
+  </head>
+
+  <!-- 3. Display the application -->
+  <body>
+    <my-app></my-app>
+  </body>
+
+</html>

@@ -9,6 +9,7 @@ import qualified Data.List as L
 import qualified Data.Map as Map
 import           Data.Time.Clock.POSIX
 import           Snap.Core
+import           Snap.Util.FileServe
 import           Snap (SnapletInit, Handler, addRoutes,
                  nestSnaplet, makeSnaplet)
 import           Snap.Snaplet.AcidState (update, query, acidInit)
@@ -26,10 +27,13 @@ app = makeSnaplet "setGame" "A web implementaiton of the Set game" Nothing $ do
 
 
 routes :: [(CharB.ByteString, Handler App App ())]
-routes = [ ("/sp/new",     method GET newSinglePlayerGameHandler)
-         , ("/sp/:gameId", method GET retrieveSinglePlayerGameHandler)
-         , ("/all",        method GET allGamesHandler)
-         , ("/full-game",  method GET fullGameHandler)
+routes = [ ("/sp",                   serveFile       "views/index.html")
+         , ("/spa",                  serveDirectory  "static/build")
+         , ("/vendor",               serveDirectory  "node_modules")
+         , ("/sp/new",               method GET      newSinglePlayerGameHandler)
+         , ("/sp/:gameId",           method GET      retrieveSinglePlayerGameHandler)
+         , ("/all",                  method GET      allGamesHandler)
+         , ("/full-game",            method GET      fullGameHandler)
          ]
 
 
@@ -74,3 +78,11 @@ retrieveSinglePlayerGameHandler = do
   Just (SinglePlayer (GameState board _ _)) <- query $ LookupGame gameId
   modifyResponse $ setHeader "Content-Type" "application/json"
   writeLBS . encode $ (gameId, board)
+
+
+--matchAttempt :: Handler App App ()
+--matchAttempt = do
+--  Just gameIdParam <- getParam "gameId"
+--  Just cardIds     <- getPostParam "cardIds"
+--  let (Just (gameId, _)) = CharB.readInteger gameIdParam
+--  Just (SinglePlayer gameState) <- query $ LookupGame gameId
